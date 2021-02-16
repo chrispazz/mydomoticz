@@ -1,4 +1,4 @@
-FROM debian:buster-slim
+FROM domoticz/domoticz:latest
 
 ARG APP_VERSION
 ARG APP_HASH
@@ -7,53 +7,26 @@ ARG BUILD_DATE
 LABEL org.label-schema.version=$APP_VERSION \
       org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$APP_HASH \
-      org.label-schema.vcs-url="https://github.com/domoticz/domoticz" \
-      org.label-schema.url="https://domoticz.com/" \
-      org.label-schema.vendor="Domoticz" \
-      org.label-schema.name="Domoticz" \
-      org.label-schema.description="Domoticz open source Home Automation system" \
-      org.label-schema.license="GPLv3" \
-      org.label-schema.docker.cmd="docker run -v ./config:/config -v ./plugins:/opt/domoticz/plugins -e DATABASE_PATH=/config/domoticz.db -p 8080:8080 -d domoticz/domoticz" \
-      maintainer="Domoticz Docker Maintainers <info@domoticz.com>"
-
+      org.label-schema.name="MyDomoticz" 
+      
 WORKDIR /opt/domoticz
 
-RUN set -ex \
-    && apt-get update \
-    && apt-get install --no-install-recommends -y \
-        tzdata \
-        unzip \
-        git \
-        libudev-dev \
-        libusb-0.1-4 \
-        curl libcurl4 libcurl4-gnutls-dev \
-        libpython3.7-dev \
-    && OS="$(uname -s | sed 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/')" \
-    && MACH=$(uname -m) \
-    && if [ ${MACH} = "armv6l" ]; then MACH = "armv7l"; fi \
-    && archive_file="domoticz_${OS}_${MACH}.tgz" \
-    && version_file="version_${OS}_${MACH}.h" \
-    && history_file="history_${OS}_${MACH}.txt" \
-    && curl -k -L https://releases.domoticz.com/releases/beta/${archive_file} --output domoticz.tgz \
-    && tar xfz domoticz.tgz \
-    && rm domoticz.tgz \
-    && mkdir -p /opt/domoticz/userdata \
-    && apt-get remove --purge --auto-remove -y curl \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get install -y python3-cryptography python3-requests-toolbelt python3-paramiko 
 
 VOLUME /opt/domoticz/userdata
 
-EXPOSE 8080
-EXPOSE 443
+EXPOSE 8082
+EXPOSE 8443
 
 ENV LOG_PATH=
 ENV DATABASE_PATH=
-ENV WWW_PORT=8080
-ENV SSL_PORT=443
+ENV WWW_PORT=8082
+ENV SSL_PORT=8443
 ENV EXTRA_CMD_ARG=
 
 # timezone env with default
-ENV TZ=Europe/Amsterdam
+ENV TZ=Europe/Rome
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
