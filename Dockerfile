@@ -12,7 +12,10 @@ LABEL org.label-schema.version=$APP_VERSION \
 WORKDIR /opt/domoticz
 
 RUN apt-get update \
-    && apt-get install -y python3-cryptography python3-requests-toolbelt python3-paramiko 
+    && apt-get install -y python3-cryptography python3-requests-toolbelt python3-paramiko curl ssh-client \
+    && mkdir userdata/scripts 
+    && mkdir userdata/scripts/dzVents 
+    && mkdir userdata/scripts/dzVents/generated_scripts
 
 VOLUME /opt/domoticz/userdata
 
